@@ -1,4 +1,4 @@
-import { CloudSky } from "./cloud-sky";
+import { CloudSky } from "./CloudSky";
 
 const destinations = [
   { name: "Tokyo", country: "Japan" },
@@ -17,7 +17,7 @@ const steps = [
   { n: "03", title: "Fly", body: "Your ticket. Your destination. Your story." },
 ];
 
-export function PageMock() {
+export function LandingContent() {
   return (
     <>
       <section

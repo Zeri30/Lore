@@ -31,8 +31,6 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   try {
     response = await fetch(buildUrl(path, query), {
       ...rest,
-      // Sanctum-style SPA auth relies on the session cookie being sent with every request.
-      credentials: "include",
       headers: {
         Accept: "application/json",
         ...(isFormData ? {} : { "Content-Type": "application/json" }),

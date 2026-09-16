@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { PageMock } from "./page-mock";
+import { LandingContent } from "@/components/marketing/LandingContent";
 import {
   Shell as AirlineBarShell,
   meta as airlineBarMeta,
@@ -119,7 +119,7 @@ export default function LayoutShellPrototypePage() {
 
       <div id="stage">
         <Active key={remountKey}>
-          <PageMock />
+          <LandingContent />
         </Active>
       </div>
 
