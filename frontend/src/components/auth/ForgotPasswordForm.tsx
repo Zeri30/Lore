@@ -5,18 +5,16 @@ import { useAuth } from "@/lib/auth/context";
 import { ApiError } from "@/lib/api";
 import { AuthField } from "./AuthField";
 
-interface LoginFormProps {
-  onSuccess?: () => void;
-  onSwitchToRegister?: () => void;
-  onSwitchToForgotPassword?: () => void;
+interface ForgotPasswordFormProps {
+  onBackToLogin?: () => void;
 }
 
-export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassword }: LoginFormProps) {
-  const { login } = useAuth();
+export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
+  const { forgotPassword } = useAuth();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -26,8 +24,8 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
     setIsSubmitting(true);
 
     try {
-      await login(email, password);
-      onSuccess?.();
+      const message = await forgotPassword(email);
+      setSuccessMessage(message);
     } catch (error) {
       if (error instanceof ApiError && error.isValidationError && error.errors) {
         setErrors(error.errors);
@@ -39,10 +37,30 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
     }
   };
 
+  if (successMessage) {
+    return (
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-foreground/70">{successMessage}</p>
+        {onBackToLogin && (
+          <button
+            type="button"
+            onClick={onBackToLogin}
+            className="text-center text-sm font-medium text-brand hover:text-brand-strong"
+          >
+            Back to log in
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <p className="text-sm text-foreground/60">
+        Enter the email on your account and we&apos;ll send you a link to reset your password.
+      </p>
       <AuthField
-        id="login-email"
+        id="forgot-password-email"
         label="Email"
         type="email"
         autoComplete="email"
@@ -51,26 +69,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
         onChange={(e) => setEmail(e.target.value)}
         error={errors.email?.[0]}
       />
-      <AuthField
-        id="login-password"
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        required
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        error={errors.password?.[0]}
-      />
-
-      {onSwitchToForgotPassword && (
-        <button
-          type="button"
-          onClick={onSwitchToForgotPassword}
-          className="self-end text-sm font-medium text-brand hover:text-brand-strong"
-        >
-          Forgot password?
-        </button>
-      )}
 
       {formError && <p className="text-sm text-danger">{formError}</p>}
 
@@ -79,20 +77,17 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
         disabled={isSubmitting}
         className="mt-2 flex w-full items-center justify-center rounded-pill bg-brand px-5 py-3 text-sm font-medium text-brand-foreground transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Logging in…" : "Log in"}
+        {isSubmitting ? "Sending…" : "Send reset link"}
       </button>
 
-      {onSwitchToRegister && (
-        <p className="text-center text-sm text-foreground/60">
-          New to LORE?{" "}
-          <button
-            type="button"
-            onClick={onSwitchToRegister}
-            className="font-medium text-brand hover:text-brand-strong"
-          >
-            Create an account
-          </button>
-        </p>
+      {onBackToLogin && (
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="text-center text-sm font-medium text-brand hover:text-brand-strong"
+        >
+          Back to log in
+        </button>
       )}
     </form>
   );

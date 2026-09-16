@@ -5,16 +5,16 @@ import { useAuth } from "@/lib/auth/context";
 import { ApiError } from "@/lib/api";
 import { AuthField } from "./AuthField";
 
-interface LoginFormProps {
+interface ResetPasswordFormProps {
+  token: string;
+  email: string;
   onSuccess?: () => void;
-  onSwitchToRegister?: () => void;
-  onSwitchToForgotPassword?: () => void;
 }
 
-export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassword }: LoginFormProps) {
-  const { login } = useAuth();
-  const [email, setEmail] = useState("");
+export function ResetPasswordForm({ token, email, onSuccess }: ResetPasswordFormProps) {
+  const { resetPassword } = useAuth();
   const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,11 +26,12 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
     setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await resetPassword({ token, email, password, passwordConfirmation });
       onSuccess?.();
     } catch (error) {
       if (error instanceof ApiError && error.isValidationError && error.errors) {
         setErrors(error.errors);
+        if (error.errors.email?.[0]) setFormError(error.errors.email[0]);
       } else {
         setFormError(error instanceof Error ? error.message : "Something went wrong.");
       }
@@ -41,36 +42,28 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <p className="text-sm text-foreground/60">
+        Choose a new password for <span className="font-medium text-foreground">{email}</span>.
+      </p>
       <AuthField
-        id="login-email"
-        label="Email"
-        type="email"
-        autoComplete="email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        error={errors.email?.[0]}
-      />
-      <AuthField
-        id="login-password"
-        label="Password"
+        id="reset-password-password"
+        label="New password"
         type="password"
-        autoComplete="current-password"
+        autoComplete="new-password"
         required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={errors.password?.[0]}
       />
-
-      {onSwitchToForgotPassword && (
-        <button
-          type="button"
-          onClick={onSwitchToForgotPassword}
-          className="self-end text-sm font-medium text-brand hover:text-brand-strong"
-        >
-          Forgot password?
-        </button>
-      )}
+      <AuthField
+        id="reset-password-password-confirmation"
+        label="Confirm new password"
+        type="password"
+        autoComplete="new-password"
+        required
+        value={passwordConfirmation}
+        onChange={(e) => setPasswordConfirmation(e.target.value)}
+      />
 
       {formError && <p className="text-sm text-danger">{formError}</p>}
 
@@ -79,21 +72,8 @@ export function LoginForm({ onSuccess, onSwitchToRegister, onSwitchToForgotPassw
         disabled={isSubmitting}
         className="mt-2 flex w-full items-center justify-center rounded-pill bg-brand px-5 py-3 text-sm font-medium text-brand-foreground transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Logging in…" : "Log in"}
+        {isSubmitting ? "Resetting…" : "Reset password"}
       </button>
-
-      {onSwitchToRegister && (
-        <p className="text-center text-sm text-foreground/60">
-          New to LORE?{" "}
-          <button
-            type="button"
-            onClick={onSwitchToRegister}
-            className="font-medium text-brand hover:text-brand-strong"
-          >
-            Create an account
-          </button>
-        </p>
-      )}
     </form>
   );
 }

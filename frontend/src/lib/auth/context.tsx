@@ -23,7 +23,16 @@ interface AuthResponse {
   token: string;
 }
 
-export type AuthModalView = "login" | "register";
+interface MessageResponse {
+  message: string;
+}
+
+export type AuthModalView = "login" | "register" | "forgot-password" | "reset-password";
+
+interface ResetPasswordCredentials {
+  token: string;
+  email: string;
+}
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -37,9 +46,14 @@ interface AuthContextValue {
     passwordConfirmation: string
   ) => Promise<void>;
   logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<string>;
+  resetPassword: (
+    credentials: ResetPasswordCredentials & { password: string; passwordConfirmation: string }
+  ) => Promise<string>;
   isAuthModalOpen: boolean;
   authModalView: AuthModalView;
-  openAuthModal: (view?: AuthModalView) => void;
+  resetPasswordCredentials: ResetPasswordCredentials | null;
+  openAuthModal: (view?: AuthModalView, resetCredentials?: ResetPasswordCredentials) => void;
   closeAuthModal: () => void;
   setAuthModalView: (view: AuthModalView) => void;
 }
@@ -57,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<AuthModalView>("login");
+  const [resetPasswordCredentials, setResetPasswordCredentials] =
+    useState<ResetPasswordCredentials | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,10 +138,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY);
   }, [token]);
 
-  const openAuthModal = useCallback((view: AuthModalView = "login") => {
-    setAuthModalView(view);
-    setIsAuthModalOpen(true);
+  const forgotPassword = useCallback(async (email: string) => {
+    const data = await apiClient.post<MessageResponse>("/forgot-password", { email });
+    return data.message;
   }, []);
+
+  const resetPassword = useCallback(
+    async ({
+      token: resetToken,
+      email,
+      password,
+      passwordConfirmation,
+    }: ResetPasswordCredentials & { password: string; passwordConfirmation: string }) => {
+      const data = await apiClient.post<MessageResponse>("/reset-password", {
+        token: resetToken,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
+      return data.message;
+    },
+    []
+  );
+
+  const openAuthModal = useCallback(
+    (view: AuthModalView = "login", resetCredentials?: ResetPasswordCredentials) => {
+      setAuthModalView(view);
+      setResetPasswordCredentials(resetCredentials ?? null);
+      setIsAuthModalOpen(true);
+    },
+    []
+  );
 
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
 
@@ -137,8 +180,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      forgotPassword,
+      resetPassword,
       isAuthModalOpen,
       authModalView,
+      resetPasswordCredentials,
       openAuthModal,
       closeAuthModal,
       setAuthModalView,
@@ -149,8 +195,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      forgotPassword,
+      resetPassword,
       isAuthModalOpen,
       authModalView,
+      resetPasswordCredentials,
       openAuthModal,
       closeAuthModal,
     ]

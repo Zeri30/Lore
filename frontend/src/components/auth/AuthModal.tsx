@@ -4,9 +4,24 @@ import { useEffect } from "react";
 import { useAuth } from "@/lib/auth/context";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { ResetPasswordForm } from "./ResetPasswordForm";
+
+const TITLES = {
+  login: "Log in",
+  register: "Create your account",
+  "forgot-password": "Reset your password",
+  "reset-password": "Choose a new password",
+} as const;
 
 export function AuthModal() {
-  const { isAuthModalOpen, authModalView, setAuthModalView, closeAuthModal } = useAuth();
+  const {
+    isAuthModalOpen,
+    authModalView,
+    setAuthModalView,
+    closeAuthModal,
+    resetPasswordCredentials,
+  } = useAuth();
 
   useEffect(() => {
     if (!isAuthModalOpen) return;
@@ -35,7 +50,7 @@ export function AuthModal() {
       >
         <div className="mb-6 flex items-start justify-between">
           <h2 id="auth-modal-title" className="font-display text-2xl font-semibold tracking-tight">
-            {authModalView === "login" ? "Log in" : "Create your account"}
+            {TITLES[authModalView]}
           </h2>
           <button
             type="button"
@@ -47,15 +62,27 @@ export function AuthModal() {
           </button>
         </div>
 
-        {authModalView === "login" ? (
+        {authModalView === "login" && (
           <LoginForm
             onSuccess={closeAuthModal}
             onSwitchToRegister={() => setAuthModalView("register")}
+            onSwitchToForgotPassword={() => setAuthModalView("forgot-password")}
           />
-        ) : (
+        )}
+        {authModalView === "register" && (
           <RegisterForm
             onSuccess={closeAuthModal}
             onSwitchToLogin={() => setAuthModalView("login")}
+          />
+        )}
+        {authModalView === "forgot-password" && (
+          <ForgotPasswordForm onBackToLogin={() => setAuthModalView("login")} />
+        )}
+        {authModalView === "reset-password" && resetPasswordCredentials && (
+          <ResetPasswordForm
+            token={resetPasswordCredentials.token}
+            email={resetPasswordCredentials.email}
+            onSuccess={() => setAuthModalView("login")}
           />
         )}
       </div>
