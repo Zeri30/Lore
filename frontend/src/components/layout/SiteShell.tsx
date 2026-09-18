@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth/context";
+import { Logo } from "./Logo";
 
 const navLinks = ["Flights", "Destinations", "My Trips"];
 const footerLinks = ["Destinations", "Help Center", "Terms", "Privacy"];
@@ -60,12 +61,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
             href="#"
             onClick={preventDefault}
             className={
-              "flex items-center gap-2 font-display text-lg font-semibold tracking-tight transition-colors duration-200 " +
+              "flex items-center transition-colors duration-200 " +
               (scrolled ? "text-foreground" : "text-foreground/85")
             }
             style={{ transitionTimingFunction: "ease" }}
           >
-            <span aria-hidden>✈</span> LORE
+            <Logo />
           </a>
 
           <nav
@@ -164,7 +165,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       {/* mobile full-screen menu */}
       <div
         className={
-          "fixed inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-background transition-opacity duration-[250ms] md:hidden " +
+          "fixed inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-background transition-opacity duration-250 md:hidden " +
           (menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0")
         }
         style={{ transitionTimingFunction: EASE_OUT }}
@@ -177,7 +178,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               e.preventDefault();
               closeMenu();
             }}
-            className="font-display text-4xl font-semibold tracking-tight text-foreground/85 transition-all duration-[250ms] hover:text-brand sm:text-6xl"
+            className="font-display text-4xl font-semibold tracking-tight text-foreground/85 transition-all duration-250 hover:text-brand sm:text-6xl"
             style={{
               transitionTimingFunction: EASE_OUT,
               transitionDelay: menuOpen ? `${60 + i * 40}ms` : "0ms",
@@ -189,7 +190,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </a>
         ))}
         <div
-          className="mt-8 flex items-center gap-4 transition-all duration-[250ms]"
+          className="mt-8 flex items-center gap-4 transition-all duration-250"
           style={{
             transitionTimingFunction: EASE_OUT,
             transitionDelay: menuOpen ? `${60 + navLinks.length * 40}ms` : "0ms",
@@ -243,9 +244,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <span className="flex items-center gap-2 font-display text-base font-semibold tracking-tight">
-            <span aria-hidden>✈</span> LORE
-          </span>
+          <Logo size="small" />
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-foreground/60">
             {footerLinks.map((label) => (
               <a

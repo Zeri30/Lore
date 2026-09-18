@@ -8,28 +8,43 @@ type Cloud = {
 };
 
 const clouds: Cloud[] = [
-  { top: "4%", left: "-20%", scale: 1.7, opacity: 0.95, duration: 85, delay: -4 },
-  { top: "22%", left: "-20%", scale: 1.15, opacity: 0.85, duration: 110, delay: -48 },
-  { top: "-2%", left: "-20%", scale: 1.4, opacity: 0.75, duration: 98, delay: -20 },
-  { top: "38%", left: "-20%", scale: 0.9, opacity: 0.65, duration: 130, delay: -76 },
-  { top: "52%", left: "-20%", scale: 0.7, opacity: 0.55, duration: 150, delay: -104 },
+  { top: "2%", left: "-20%", scale: 1.7, opacity: 0.95, duration: 42, delay: -4 },
+  { top: "14%", left: "-20%", scale: 1.0, opacity: 0.8, duration: 55, delay: -30 },
+  { top: "22%", left: "-20%", scale: 1.15, opacity: 0.85, duration: 50, delay: -18 },
+  { top: "-4%", left: "-20%", scale: 1.4, opacity: 0.75, duration: 48, delay: -10 },
+  { top: "30%", left: "-20%", scale: 0.75, opacity: 0.6, duration: 65, delay: -46 },
+  { top: "40%", left: "-20%", scale: 0.9, opacity: 0.65, duration: 60, delay: -36 },
+  { top: "50%", left: "-20%", scale: 0.65, opacity: 0.55, duration: 72, delay: -52 },
+  { top: "58%", left: "-20%", scale: 0.55, opacity: 0.5, duration: 78, delay: -60 },
 ];
 
 const CLOUD_COLOR = "#fbf8f2";
+const CLOUD_SHADOW_COLOR = "#e4ded0";
 
-// Designed at a fixed 220x110 reference size so the circle math produces a
-// real cumulus silhouette (puffy top, flatter base) — percentage-based
-// radial-gradient stops resolve against the box's *farthest corner*, which
-// on a wide rectangle blows the circles up into a near-solid box. Absolute
-// px stops sidestep that; per-instance sizing is done with `transform:
-// scale()` on the wrapper instead, so the shape itself never distorts.
-const CLOUD_PUFFS = `
-  radial-gradient(circle at 55px 75px, ${CLOUD_COLOR} 0, ${CLOUD_COLOR} 31px, transparent 32px),
-  radial-gradient(circle at 90px 45px, ${CLOUD_COLOR} 0, ${CLOUD_COLOR} 41px, transparent 42px),
-  radial-gradient(circle at 135px 42px, ${CLOUD_COLOR} 0, ${CLOUD_COLOR} 43px, transparent 44px),
-  radial-gradient(circle at 172px 70px, ${CLOUD_COLOR} 0, ${CLOUD_COLOR} 33px, transparent 34px),
-  radial-gradient(circle at 113px 88px, ${CLOUD_COLOR} 0, ${CLOUD_COLOR} 39px, transparent 40px)
-`;
+// A flat-icon cumulus: a rounded base pill with three overlapping circular
+// lobes on top (scalloped skyline, flat-ish base), plus a duplicate of the
+// same shapes offset a few px down in a muted tone underneath — the classic
+// "cloud icon with a soft drop shadow" look, modeled on a reference sheet
+// of vector cloud icons rather than a photographic cumulus bank.
+const CLOUD_LOBES = (
+  <>
+    <rect x="25" y="55" width="150" height="35" rx="17.5" />
+    <circle cx="50" cy="48" r="25" />
+    <circle cx="100" cy="34" r="32" />
+    <circle cx="150" cy="46" r="27" />
+  </>
+);
+
+function CloudShape() {
+  return (
+    <svg viewBox="0 0 200 100" width={200} height={100} aria-hidden>
+      <g fill={CLOUD_SHADOW_COLOR} transform="translate(0, 6)">
+        {CLOUD_LOBES}
+      </g>
+      <g fill={CLOUD_COLOR}>{CLOUD_LOBES}</g>
+    </svg>
+  );
+}
 
 /**
  * Soft drifting clouds + a slow-flying plane silhouette for the hero sky.
@@ -82,15 +97,13 @@ export function CloudSky() {
         >
           <div
             style={{
-              width: 220,
-              height: 110,
               transform: `scale(${c.scale})`,
               transformOrigin: "left center",
               opacity: c.opacity,
-              background: CLOUD_PUFFS,
-              filter: "blur(5px)",
             }}
-          />
+          >
+            <CloudShape />
+          </div>
         </div>
       ))}
 

@@ -60,7 +60,7 @@
   --radius-card: var(--radius-card);
   --radius-pill: var(--radius-pill);
 
-  --font-display: var(--font-outfit);
+  --font-display: var(--font-cormorant);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

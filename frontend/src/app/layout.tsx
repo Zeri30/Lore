@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Geist, Geist_Mono, Cormorant } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/context";
 import { AuthModal } from "@/components/auth";
 import "./globals.css";
@@ -14,9 +14,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+// Display serif — carries the brand's editorial "travel journal" voice
+// (headlines, wordmark, section titles). Geist Sans stays the UI/body
+// workhorse; Geist Mono is reserved for eyebrows and index numerals.
+// See globals.css for the --font-display mapping.
+const cormorant = Cormorant({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
